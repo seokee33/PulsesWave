@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_check"
+        android:enabled="true"
+        android:icon="@drawable/pulse"
+        android:title="측정"/>
+    <item
+        android:id="@+id/menu_history"
+        android:enabled="true"
+        android:icon="@drawable/history"
+        android:title="기록"/>
+    <item
+        android:id="@+id/menu_User"
+        android:enabled="true"
+        android:icon="@drawable/user"
+        android:title="내정보"/>
+</menu>
