@@ -20,6 +20,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 
+import com.cla.pulsewave.util.SampleGattAttributes;
 import com.cla.pulsewave.view.MainActivity;
 import com.cla.pulsewave.view.check.Check;
 
@@ -61,9 +62,6 @@ public class BluetoothLeService extends Service {
     //값을 찾았을때 들어옴
     public final static String ACTION_DATA_AVAILABLE = "com.example.bluetooth.le.ACTION_DATA_AVAILABLE";
     public final static String EXTRA_DATA = "com.example.bluetooth.le.EXTRA_DATA";
-
-
-
 
     //변경이 필요한 부분!!!
     //UUID 지정(기기 UUID)
@@ -194,6 +192,7 @@ public class BluetoothLeService extends Service {
     private void broadcastUpdate( String action,  BluetoothGattCharacteristic characteristic)
     {
         final Intent intent = new Intent(action);
+        Log.w("characteristic.getUuid()",characteristic.getUuid().toString());
         if (BLE_UUID.equals(characteristic.getUuid()))
         {
             Log.w("broadcastUpdate222222",characteristic.getUuid().toString());
@@ -210,13 +209,8 @@ public class BluetoothLeService extends Service {
                 format = BluetoothGattCharacteristic.FORMAT_UINT8;
                 Log.d("BLE_Service", "Heart rate format UINT8.");
             }
-            Log.d("Received heart rate",format+"");
-            Log.d("characteristic.getValue",characteristic.getValue().toString());
-            Log.d("characteristic.getDescriptors",characteristic.getDescriptors().toString());
-            Log.d("characteristic.getPermissions",characteristic.getPermissions()+"");
-            Log.d("characteristic.getValue",characteristic.getValue().toString());
-
-            final int heartRate = characteristic.getIntValue(format, 1);
+            //final int heartRate = characteristic.getIntValue(format, 1);
+            final int heartRate = getDecimal(bytesToHex(characteristic.getValue()));
             Log.w("BLE_Service", String.format("Received heart rate: %d", heartRate));
             intent.putExtra(EXTRA_DATA, String.valueOf(heartRate));
         }
@@ -242,7 +236,18 @@ public class BluetoothLeService extends Service {
         Log.w("broadCast ", getData);
         sendBroadcast(intent);
     }
-
+    public static int getDecimal(String hex){
+        String digits = "0123456789ABCDEF";
+        hex = hex.toUpperCase();
+        int val = 0;
+        for (int i = 0; i < hex.length(); i++)
+        {
+            char c = hex.charAt(i);
+            int d = digits.indexOf(c);
+            val = 16*val + d;
+        }
+        return val;
+    }
     //bytesToHex : 바이트 배열을 16진수 문자열로 변화
     private static final byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
     public static String bytesToHex(byte[] bytes) {
@@ -304,6 +309,7 @@ public class BluetoothLeService extends Service {
     }
 
     //////////////////////블루투스 통신 (읽고, 쓰기)  Read Write  /////////////////////////////
+    protected static final UUID CHARACTERISTIC_UPDATE_NOTIFICATION_DESCRIPTOR_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
     @SuppressLint("MissingPermission")
     public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic, boolean enabled)
@@ -313,11 +319,15 @@ public class BluetoothLeService extends Service {
             Log.w("BLE_Service", "BluetoothAdapter not initialized");
             return;
         }
-        BLE_Socket.setCharacteristicNotification(characteristic, enabled);
 
-        BluetoothGattDescriptor descriptor = new BluetoothGattDescriptor(characteristic.getUuid(),characteristic.getPermissions());
+        BLE_Socket.setCharacteristicNotification(characteristic, enabled);
+        Log.w("BluetoothGattDescriptor descriptor", String.valueOf(enabled));
+        Log.w("BluetoothGattDescriptor descriptor", characteristic.getDescriptor(CHARACTERISTIC_UPDATE_NOTIFICATION_DESCRIPTOR_UUID).toString());
+        BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CHARACTERISTIC_UPDATE_NOTIFICATION_DESCRIPTOR_UUID); //characteristic을 찾기, 보여주기 등을 담당
+        //BluetoothGattDescriptor descriptor = new BluetoothGattDescriptor(characteristic.getUuid(),characteristic.getPermissions());
 
         descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+        //descriptor.setValue(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
         //연결된 원격 장치에 주어진 설명자의 값을 씁니다.
         BLE_Socket.writeDescriptor(descriptor);
     }

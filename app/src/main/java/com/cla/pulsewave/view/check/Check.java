@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -47,45 +48,25 @@ public class Check extends Fragment {
     private final int BLE_RETURN = 100; //ScanDevice_Activity 로 부터 반환 코드
 
     //BLE Connect
-    private String mDeviceAddress = "00:00:00:00:00:00";
+    public static String mDeviceAddress = "00:00:00:00:00:00";
     public static boolean BTstate = false; //블루투스 연결상태 : false로 초기화
-
     private BluetoothLeService mBluetoothLeService;
 
 
     //BLE Read/Write
-    private Thread thread;
+//    private Thread thread;
 
     private BluetoothGattCharacteristic BTcharacteristic_read; //연결된 기기로 부터 받은 데이터가 들어가는 변수
     private BluetoothGattCharacteristic click_ArrayList_data;
 
-    //GATT
-    private BluetoothGattServer server;
-    private BluetoothGattService service;
-
     ////TEST
     private int cnt = 0;
-    public boolean Read_State = false;
+//    public boolean Read_State = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentCheckBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-
-        //블루투스 수신 thread
-        thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (BTstate) {
-                    if (Read_State) {
-                        Log.w("Read_State(onclick1)", Read_State + "");
-                        BTcharacteristic_read = mBluetoothLeService.getSupportedGattServices_read();
-                        getCharacteristics(); //데이터 찾는 순간, 받아오기 클릭
-                        Log.w("Read_State(onclick1)", Read_State + "");
-                    }
-                }
-            }
-        });
 
         //블루투스 스캔하는 버튼을 클릭했을때
         binding.btnBLESCAN.setOnClickListener(new View.OnClickListener() {
@@ -103,14 +84,13 @@ public class Check extends Fragment {
             @Override
             public void onClick(View v) {
                 if (BTstate) {
-                    // Log.w("et_send_input",et_send_input.getText().toString());
-                    //byte[] sendHex = hexStringToByteArray(tv_Send.getText().toString());
-                    byte[] sendHex = hexStringToByteArray("01");
-                    Log.w("sendHex", String.valueOf(sendHex.length));
-                    BluetoothGattCharacteristic BTcharacteristic_write = mBluetoothLeService.getSupportedGattServices_write();
-
-                    mBluetoothLeService.writeCharacteristic(BTcharacteristic_write, sendHex); //TX
-                    Read_State = true;
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            sendData();
+                        }
+                    },1000);
+//                    readData();
                 } else {
                     Toast.makeText(getActivity(), "BLE연결을 확인하십시오.", Toast.LENGTH_LONG).show();
                 }
@@ -188,17 +168,13 @@ public class Check extends Fragment {
             {
                 disconnectUI();
                 BTstate = false;//블루투스 연결상태 : false(연결 해제)
-                thread.stop();
+//                thread.stop();
 
             }
             else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) //서비스를 찾았을때 들어옴
             {
                 BTstate = true; //블루투스 연결상태 : true(연결중)
-                try{
-                    thread.start();
-                }catch (IllegalThreadStateException e){
-                    Log.w("Thread Error","Thread Error");
-                }
+                readData();
             }
             else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) //값을 찾았을때 들어옴
             {
@@ -269,27 +245,15 @@ public class Check extends Fragment {
             {
                 if (click_ArrayList_data != null)
                 {
+                    Log.w("click_ArrayList_data","ininininin");
                     mBluetoothLeService.setCharacteristicNotification(click_ArrayList_data, false);
                     click_ArrayList_data = null;
                 }
-                mBluetoothLeService.readCharacteristic(characteristic);//아직 characteristic값 없음
-                Log.w("Bluetooth1 : ","!!!!!!!!!!!!!!!!!");
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.w("Bluetooth2 : ","!!!!!!!!!!!!!!!!!");
-                        if( characteristic.getValue() != null){
-                            Log.w("Bluetooth3 : ","!!!!!!!!!!!!!!!!!");
-                            if(getDecimal(bytesToHex(characteristic.getValue()))== 11)
-                                BTstate = false;
-                            Log.w("Bluetooth3 : ", String.valueOf(getDecimal(bytesToHex(characteristic.getValue()))));
-                        }
-
-                    }
-                });
+                mBluetoothLeService.readCharacteristic(characteristic); //아직 characteristic값 없음
             }
             if ((click_ArrayList_properties | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0)//읽을때 일로 들어옴
             {
+                Log.w("inininininin","inininininin");
                 click_ArrayList_data = characteristic;
                 mBluetoothLeService.setCharacteristicNotification(characteristic, true);
             }
@@ -306,6 +270,18 @@ public class Check extends Fragment {
             hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
         }
         return new String(hexChars, StandardCharsets.UTF_8);
+    }
+
+    public void sendData(){
+        byte[] sendHex = hexStringToByteArray("01");
+        Log.w("sendHex", String.valueOf(sendHex.length));
+        BluetoothGattCharacteristic BTcharacteristic_write = mBluetoothLeService.getSupportedGattServices_write();
+
+        mBluetoothLeService.writeCharacteristic(BTcharacteristic_write, sendHex); //TX
+    }
+    public void readData(){
+        BTcharacteristic_read = mBluetoothLeService.getSupportedGattServices_read(); //변경
+        getCharacteristics(); //데이터 찾는 순간, 받아오기 클릭
     }
 
     public static int getDecimal(String hex){
