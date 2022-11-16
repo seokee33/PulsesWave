@@ -32,7 +32,7 @@ public class Rv_ScanDeviceAdapter extends RecyclerView.Adapter<Rv_ScanDeviceAdap
     @org.jetbrains.annotations.NotNull
     @Override
     public CustomViewHolder onCreateViewHolder(@NonNull @org.jetbrains.annotations.NotNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.device_list_item,parent,false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.device_list_item, parent, false);
         CustomViewHolder holder = new CustomViewHolder(view);
         return holder;
     }
@@ -44,12 +44,12 @@ public class Rv_ScanDeviceAdapter extends RecyclerView.Adapter<Rv_ScanDeviceAdap
         holder.tv_device_address.setText(arrayList.get(position).getAddress());
     }
 
-    public void clear(){
+    public void clear() {
         this.arrayList.clear();
     }
 
-    public void addDevice(BluetoothDevice device){
-        if(!arrayList.contains(device)){
+    public void addDevice(BluetoothDevice device) {
+        if (!arrayList.contains(device)) {
             arrayList.add(device);
         }
     }
@@ -65,8 +65,8 @@ public class Rv_ScanDeviceAdapter extends RecyclerView.Adapter<Rv_ScanDeviceAdap
 
         public CustomViewHolder(@NonNull @org.jetbrains.annotations.NotNull View itemView) {
             super(itemView);
-            this.tv_device_name = (TextView)itemView.findViewById(R.id.tv_device_name);
-            this.tv_device_address = (TextView)itemView.findViewById(R.id.tv_device_address);
+            this.tv_device_name = (TextView) itemView.findViewById(R.id.tv_device_name);
+            this.tv_device_address = (TextView) itemView.findViewById(R.id.tv_device_address);
 
             //스캔된 디바이스(itemView)를 클릭하면
             // MainActivty로  "key"와 디바이스의 주소값을 넘겨주고 ScanDevice는 종료
@@ -75,8 +75,7 @@ public class Rv_ScanDeviceAdapter extends RecyclerView.Adapter<Rv_ScanDeviceAdap
                 @Override
                 public void onClick(View view) {
                     //ScanDevice에서 블루투스 스캔중이면 스캔을 종료
-                    if (context.ismScanning())
-                    {
+                    if (context.ismScanning()) {
                         context.getMbluetooth_adapter().stopLeScan(context.BLE_Callback);
                         context.setmScanning(false);
                     }

@@ -1,9 +1,5 @@
 package com.cla.pulsewave.view.check;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -16,7 +12,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.widget.Toast;
 
-import com.cla.pulsewave.R;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
 import com.cla.pulsewave.adapter.Rv_ScanDeviceAdapter;
 import com.cla.pulsewave.databinding.ActivityScanDeviceBinding;
 
@@ -30,7 +28,7 @@ public class ScanDevice extends AppCompatActivity {
 
     //Bluetooth
     private BluetoothAdapter mbluetooth_adapter;
-    private boolean mScanning  = false;  //현재 스캔 상태
+    private boolean mScanning = false;  //현재 스캔 상태
     private Handler mHandler;   //(블루투스 스캔시 -> 스캔 시간 조절할때 사용)
     private static final int REQUEST_ENABLE_BT = 1;
     private static final long SCAN_PERIOD = 1000;    // 스캔이 지속되는 시간
@@ -61,8 +59,7 @@ public class ScanDevice extends AppCompatActivity {
         mbluetooth_adapter = bluetoothManager.getAdapter();
 
         // bluetooth 지원 기기 확인
-        if (mbluetooth_adapter == null)
-        {
+        if (mbluetooth_adapter == null) {
             Toast.makeText(this, "ble_not_supported", Toast.LENGTH_SHORT).show();
             finish();
             return;
@@ -71,16 +68,13 @@ public class ScanDevice extends AppCompatActivity {
 
     //블루투스 스캔시작
     @SuppressLint("MissingPermission")
-    private void bleScanDevice(final boolean enable)
-    {
+    private void bleScanDevice(final boolean enable) {
         if (enable) //true 이면 스캔시작
         {
             //10초 대기후 블루투스 스캔 종료
-            mHandler.postDelayed(new Runnable()
-            {
+            mHandler.postDelayed(new Runnable() {
                 @Override
-                public void run()
-                {
+                public void run() {
                     mScanning = false; //블루투스 스캔 상태 : false
                     mbluetooth_adapter.stopLeScan(BLE_Callback); //ble_scan_stop : 스캔 종료
                 }
@@ -88,8 +82,7 @@ public class ScanDevice extends AppCompatActivity {
 
             mScanning = true;   //블루투스 스캔 상태 : true
             mbluetooth_adapter.startLeScan(BLE_Callback);   //ble_scan_start: 스캔 시작
-        }
-        else    //false 이면 스캔 종료
+        } else    //false 이면 스캔 종료
         {
             mScanning = false; //스캔 상태 : false
             mbluetooth_adapter.stopLeScan(BLE_Callback); // ble_scan_stop : 스캔 종료
@@ -97,21 +90,17 @@ public class ScanDevice extends AppCompatActivity {
     }
 
     //블루투스 디바이스를 찾으면 실제 화면에 갱신시켜주는곳 (runOnUiThread <===> Handler.PostDelay <===> Main Thread)
-    public BluetoothAdapter.LeScanCallback BLE_Callback = new BluetoothAdapter.LeScanCallback()
-    {
+    public BluetoothAdapter.LeScanCallback BLE_Callback = new BluetoothAdapter.LeScanCallback() {
         @SuppressLint("MissingPermission")
         @Override
-        public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord)
-        {
+        public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
             // 디바이스가 NotNull
             // 디바이스 이름이 NotNull
-            if(device != null && device.getName()!=null){
+            if (device != null && device.getName() != null) {
                 //찾으면 화면에 갱신- RecyclerView
-                runOnUiThread(new Runnable()
-                {
+                runOnUiThread(new Runnable() {
                     @Override
-                    public void run()
-                    {
+                    public void run() {
                         //RecyclerView Adapter에 아이템(Device) 추가
                         adapter.addDevice(device);
                         adapter.notifyDataSetChanged();  //RecyclerView 갱신
@@ -130,8 +119,7 @@ public class ScanDevice extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         //블루투스가 켜져있는 상태인지
-        if (!mbluetooth_adapter.isEnabled())
-        {
+        if (!mbluetooth_adapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
@@ -141,8 +129,7 @@ public class ScanDevice extends AppCompatActivity {
 
     //화면이 꺼지는 등 화면전환이 생겼을때
     @Override
-    protected void onPause()
-    {
+    protected void onPause() {
         super.onPause();
         //MainActivity.BTstate = false;   //MainActivity의 블루투스 연결 상태를 해제
         bleScanDevice(false);   //ble_scan_stop : 블루투스 스캔 종료
@@ -151,15 +138,12 @@ public class ScanDevice extends AppCompatActivity {
     }
 
 
-
     //블루투스 꺼져있으면 끔
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         // User chose not to enable Bluetooth.
-        if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED)
-        {
+        if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
             finish(); //아예 앱 끝내버림
         }
 

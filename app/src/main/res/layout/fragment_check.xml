@@ -10,10 +10,12 @@
         android:id="@+id/chart_Pulse"
         android:layout_width="match_parent"
         android:layout_height="200dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
         android:layout_alignParentTop="true"
         android:layout_centerInParent="true"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="50dp"
         android:layout_marginEnd="10dp" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -32,19 +34,19 @@
             android:id="@+id/btn_BLE_SCAN"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/white"
             android:layout_gravity="bottom|right"
             android:layout_margin="16dp"
+            android:backgroundTint="@color/white"
             app:borderWidth="0dp"
             app:fabCustomSize="100dp"
             app:fabSize="auto"
-            app:maxImageSize="50dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:maxImageSize="50dp"
             app:srcCompat="@drawable/ic_baseline_bluetooth_24"
-            app:tint="#0625D3"/>
+            app:tint="#0625D3" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

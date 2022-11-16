@@ -43,4 +43,9 @@ dependencies {
     //chart
     implementation 'com.robinhood.spark:spark:1.2.0'
     implementation 'com.github.jakob-grabner:Circle-Progress-View:1.4'
+
+    def room_version = "2.4.3"
+
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
 }

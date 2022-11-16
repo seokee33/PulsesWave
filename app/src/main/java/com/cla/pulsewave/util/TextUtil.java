@@ -4,31 +4,34 @@ import java.nio.charset.StandardCharsets;
 
 public class TextUtil {
     public static TextUtil _instance;
-    public TextUtil(){}
 
-    public static TextUtil getInstance(){
-        if(_instance == null){
-            synchronized (TextUtil.class){
+    public TextUtil() {
+    }
+
+    public static TextUtil getInstance() {
+        if (_instance == null) {
+            synchronized (TextUtil.class) {
                 _instance = new TextUtil();
             }
         }
         return _instance;
     }
 
-    public int getDecimal(String hex){
+    public int getDecimal(String hex) {
         String digits = "0123456789ABCDEF";
         hex = hex.toUpperCase();
         int val = 0;
-        for (int i = 0; i < hex.length(); i++)
-        {
+        for (int i = 0; i < hex.length(); i++) {
             char c = hex.charAt(i);
             int d = digits.indexOf(c);
-            val = 16*val + d;
+            val = 16 * val + d;
         }
         return val;
     }
+
     //bytesToHex : 바이트 배열을 16진수 문자열로 변화
     private final byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
+
     public String bytesToHex(byte[] bytes) {
         byte[] hexChars = new byte[bytes.length * 2];
         for (int j = 0; j < bytes.length; j++) {

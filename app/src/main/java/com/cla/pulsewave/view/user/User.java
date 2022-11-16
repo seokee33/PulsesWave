@@ -1,22 +1,19 @@
 package com.cla.pulsewave.view.user;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.cla.pulsewave.R;
+import androidx.fragment.app.Fragment;
+
 import com.cla.pulsewave.databinding.FragmentUserBinding;
-import com.cla.pulsewave.view.history.History;
 
 
 public class User extends Fragment {
     private FragmentUserBinding binding;
 
-    public static User newInstance(){
+    public static User newInstance() {
         User user = new User();
         return user;
     }

@@ -10,8 +10,9 @@
         <entry key="..\:/project/PulseWave/app/src/main/res/layout/activity_scan_device.xml" value="0.33229166666666665" />
         <entry key="..\:/project/PulseWave/app/src/main/res/layout/device_list_item.xml" value="0.33229166666666665" />
         <entry key="..\:/project/PulseWave/app/src/main/res/layout/fragment_check.xml" value="0.33" />
-        <entry key="..\:/project/PulseWave/app/src/main/res/layout/fragment_history.xml" value="0.1875" />
+        <entry key="..\:/project/PulseWave/app/src/main/res/layout/fragment_history.xml" value="0.33" />
         <entry key="..\:/project/PulseWave/app/src/main/res/layout/fragment_user.xml" value="0.1875" />
+        <entry key="..\:/project/PulseWave/app/src/main/res/layout/history_list_item.xml" value="0.1" />
         <entry key="..\:/project/PulseWave/app/src/main/res/menu/bottom_navi.xml" value="0.36614583333333334" />
       </map>
     </option>

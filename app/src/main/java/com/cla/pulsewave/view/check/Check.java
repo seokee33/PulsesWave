@@ -5,8 +5,6 @@ import static android.content.Context.BIND_AUTO_CREATE;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattServer;
-import android.bluetooth.BluetoothGattService;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -20,22 +18,22 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
+import com.cla.pulsewave.adapter.SparkChartAdapter;
 import com.cla.pulsewave.databinding.FragmentCheckBinding;
 import com.cla.pulsewave.service.BluetoothLeService;
 import com.cla.pulsewave.util.TextUtil;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Objects;
+import com.robinhood.spark.SparkView;
+import com.robinhood.spark.animation.LineSparkAnimator;
+import com.robinhood.spark.animation.MorphSparkAnimator;
 
 public class Check extends Fragment {
     private FragmentCheckBinding binding;
@@ -56,6 +54,14 @@ public class Check extends Fragment {
 
     private BluetoothGattCharacteristic BTcharacteristic_read; //연결된 기기로 부터 받은 데이터가 들어가는 변수
     private BluetoothGattCharacteristic click_ArrayList_data;
+
+    //chart
+    private SparkView sparkView;
+    private SparkChartAdapter sparkChartAdapter;
+
+    //평균값
+    int avg = 0;
+    int avgCnt = 0;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -81,9 +87,12 @@ public class Check extends Fragment {
                 } else {
                     Toast.makeText(getActivity(), "BLE연결을 확인하십시오.", Toast.LENGTH_LONG).show();
                 }
-
             }
         });
+
+
+        //chart
+        sparkChartAdapter = new SparkChartAdapter();
 
         return view;
     }
@@ -145,12 +154,31 @@ public class Check extends Fragment {
 
                 if (intent.getStringExtra(BluetoothLeService.EXTRA_DATA) != null) {
                     String getData = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
+                    if(!getData.equals("0")){
+                        try{
+                            requireActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    binding.tvBPM.setText(String.valueOf(calcAVG(Integer.parseInt(getData))));
+                                }
+                            });
+                            binding.chartPulse.setAdapter(sparkChartAdapter);
+                            sparkChartAdapter.addData(Float.parseFloat(getData));
+                            sparkChartAdapter.notifyDataSetChanged();
+                        }catch (RuntimeException e){
+                            Log.w("error_avg","error");
+                        }
+                    }
                     Log.w("String getData = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);", getData);
                 }
             }
         }
     };
 
+    private int calcAVG(int value){
+        avg = (value+(++avgCnt-1)*avg)/avgCnt;
+        return avg;
+    }
     //블루투스 연결
     public void BLE_connct() {
         //두 개의 액티비티가 하나의 서비스의 데이터를 전달받는 것
@@ -176,10 +204,11 @@ public class Check extends Fragment {
     private void connectUI() {
         binding.layoutBLEON.setVisibility(View.VISIBLE);
         binding.layoutBLEOFF.setVisibility(View.GONE);
+        avg = 0;
+        binding.tvBPM.setText("");
     }
 
     ////////////////////////////////  Read Write  ///////////////////////////////
-
     //데이터 받아오기 클릭
     @Nullable
     private void getCharacteristics() {
@@ -200,11 +229,9 @@ public class Check extends Fragment {
                 click_ArrayList_data = characteristic;
 
                 //delay를 줘야하는것 같음!!!!!
-                new Handler().postDelayed(new Runnable()
-                {
+                new Handler().postDelayed(new Runnable() {
                     @Override
-                    public void run()
-                    {
+                    public void run() {
                         mBluetoothLeService.setCharacteristicNotification(characteristic, true);
                     }
                 }, 3000);
