@@ -19,9 +19,7 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-
-import com.cla.pulsewave.util.SampleGattAttributes;
-import com.cla.pulsewave.view.MainActivity;
+import com.cla.pulsewave.util.TextUtil;
 import com.cla.pulsewave.view.check.Check;
 
 import java.nio.charset.StandardCharsets;
@@ -140,13 +138,13 @@ public class BluetoothLeService extends Service {
                 bluetooth_success = ACTION_GATT_CONNECTED;
                 mConnectionState = STATE_CONNECTED; //의미없음
                 broadcastUpdate(bluetooth_success); //broadcastUpdate함수가 잇음
-                Log.i("BLE_Service", "Attempting to start service discovery:" + BLE_Socket.discoverServices());
+                Log.i("BluetoothGattCallback", "Attempting to start service discovery:" + BLE_Socket.discoverServices());
             }
             else if (newState == BluetoothProfile.STATE_DISCONNECTED)
             {
                 bluetooth_success = ACTION_GATT_DISCONNECTED;
                 mConnectionState = STATE_DISCONNECTED; //의미없음 왜 카운터 하는지 모름
-                Log.i("BLE_Service", "Disconnected from GATT server.");
+                Log.i("BluetoothGattCallback", "Disconnected from GATT server.");
                 broadcastUpdate(bluetooth_success);
             }
         }
@@ -155,13 +153,15 @@ public class BluetoothLeService extends Service {
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status)
         {
+            Log.w("onServicesDiscovered", "onServicesDiscovered received: " + status);
             if (status == BluetoothGatt.GATT_SUCCESS)
             {
+                Log.w("onServicesDiscovered", "SUCCESS");
                 broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
             }
             else
             {
-                Log.w("onServicesDiscovered", "onServicesDiscovered received: " + status);
+                Log.w("onServicesDiscovered", "Not SUCCESS");
             }
         }
 
@@ -170,7 +170,7 @@ public class BluetoothLeService extends Service {
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status)
         {
-            Log.w("onRead", "!!!!!!!!!!!!!!!@@@@@@@@");
+            Log.w("onCharacteristicRead", String.valueOf(TextUtil.getInstance().getDecimal(TextUtil.getInstance().bytesToHex(characteristic.getValue()))));
             broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
         }
 
@@ -178,87 +178,38 @@ public class BluetoothLeService extends Service {
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic)
         {
-            Log.w("onRead", "@@@@@@@@");
             broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
         }
     };
 
+    //블루투스 연결할때 여기로 들어옴
     private void broadcastUpdate( String _bluetooth_success)
     {
         final Intent intent = new Intent(_bluetooth_success);
         sendBroadcast(intent);
     }
 
+    //데이터를 읽을때 여기로 들어옴
     private void broadcastUpdate( String action,  BluetoothGattCharacteristic characteristic)
     {
         final Intent intent = new Intent(action);
         Log.w("characteristic.getUuid()",characteristic.getUuid().toString());
         if (BLE_UUID.equals(characteristic.getUuid()))
         {
-            Log.w("broadcastUpdate222222",characteristic.getUuid().toString());
-            int flag = characteristic.getProperties();
-            int format = -1;
-
-            if ((flag & 0x01) != 0)
-            {
-                format = BluetoothGattCharacteristic.FORMAT_UINT16;
-                Log.w("BLE_Service", "Heart rate format UINT16.");
-            }
-            else
-            {
-                format = BluetoothGattCharacteristic.FORMAT_UINT8;
-                Log.d("BLE_Service", "Heart rate format UINT8.");
-            }
-            //final int heartRate = characteristic.getIntValue(format, 1);
-            final int heartRate = getDecimal(bytesToHex(characteristic.getValue()));
-            Log.w("BLE_Service", String.format("Received heart rate: %d", heartRate));
+            final int heartRate = TextUtil.getInstance().getDecimal(TextUtil.getInstance().bytesToHex(characteristic.getValue()));
+            Log.w("BLE_Service_if", String.format("Received heart rate: %d", heartRate));
             intent.putExtra(EXTRA_DATA, String.valueOf(heartRate));
         }
-        else  //거의 else만 실행됨 if 왜 있는지 ..? 일단 여기로 들어옴 -> 7 -1
+        else  //거의 else만 실행됨 if 왜 있는지 ..? 일단 여기로 들어옴
         {
-            final byte[] data = characteristic.getValue();
-            if (data != null && data.length > 0)
-            {
-                final StringBuilder stringBuilder = new StringBuilder(data.length);
-
-                for(byte byteChar : data)
-                {
-                    stringBuilder.append(String.format("%02X ", byteChar));
-                }
-                intent.putExtra(EXTRA_DATA, stringBuilder.toString());
-            }
+            final int heartRate = TextUtil.getInstance().getDecimal(TextUtil.getInstance().bytesToHex(characteristic.getValue()));
+            Log.w("BLE_Service_else", String.format("Received heart rate: %d", heartRate));
+            intent.putExtra(EXTRA_DATA, String.valueOf(heartRate));
         }
-
-        final byte[] data = characteristic.getValue();
-        String getData = bytesToHex(data);
-        intent.putExtra(EXTRA_DATA, getData);
-
-        Log.w("broadCast ", getData);
         sendBroadcast(intent);
     }
-    public static int getDecimal(String hex){
-        String digits = "0123456789ABCDEF";
-        hex = hex.toUpperCase();
-        int val = 0;
-        for (int i = 0; i < hex.length(); i++)
-        {
-            char c = hex.charAt(i);
-            int d = digits.indexOf(c);
-            val = 16*val + d;
-        }
-        return val;
-    }
-    //bytesToHex : 바이트 배열을 16진수 문자열로 변화
-    private static final byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
-    public static String bytesToHex(byte[] bytes) {
-        byte[] hexChars = new byte[bytes.length * 2];
-        for (int j = 0; j < bytes.length; j++) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
-            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
-        }
-        return new String(hexChars, StandardCharsets.UTF_8);
-    }
+
+
 
     // 기기 연결
     @SuppressLint("MissingPermission")
@@ -321,13 +272,9 @@ public class BluetoothLeService extends Service {
         }
 
         BLE_Socket.setCharacteristicNotification(characteristic, enabled);
-        Log.w("BluetoothGattDescriptor descriptor", String.valueOf(enabled));
-        Log.w("BluetoothGattDescriptor descriptor", characteristic.getDescriptor(CHARACTERISTIC_UPDATE_NOTIFICATION_DESCRIPTOR_UUID).toString());
         BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CHARACTERISTIC_UPDATE_NOTIFICATION_DESCRIPTOR_UUID); //characteristic을 찾기, 보여주기 등을 담당
-        //BluetoothGattDescriptor descriptor = new BluetoothGattDescriptor(characteristic.getUuid(),characteristic.getPermissions());
 
         descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-        //descriptor.setValue(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
         //연결된 원격 장치에 주어진 설명자의 값을 씁니다.
         BLE_Socket.writeDescriptor(descriptor);
     }
@@ -335,7 +282,6 @@ public class BluetoothLeService extends Service {
     //////////////////////////////// Read 데이터 수신 //////////////////////////////////
     public BluetoothGattCharacteristic getSupportedGattServices_read() //변경
     {
-
         if(BLE_Socket == null)
         {
             return null;
@@ -381,7 +327,6 @@ public class BluetoothLeService extends Service {
 
     public void writeCharacteristic(BluetoothGattCharacteristic characteristic, byte[] data)
     {
-        Log.w("writeCharacteristic", "writeCharacteristic");
         for(byte b : data)
             Log.w("writeCharacteristic", String.valueOf(b));
         if(mBluetoothAdapter == null || BLE_Socket == null){
@@ -395,15 +340,4 @@ public class BluetoothLeService extends Service {
         characteristic.setValue(data);
         @SuppressLint("MissingPermission") boolean a = BLE_Socket.writeCharacteristic(characteristic);
     }
-
-
-    public List<BluetoothGattService> getSupportedGattServices()
-    {
-        if (BLE_Socket == null)
-        {
-            return null;
-        }
-        return BLE_Socket.getServices();
-    }
-
 }
