@@ -26,4 +26,6 @@ public class User extends Fragment {
 
         return view;
     }
+
+
 }

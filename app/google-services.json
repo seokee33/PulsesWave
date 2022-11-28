@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "219956836129",
+    "project_id": "pulsewave-c794e",
+    "storage_bucket": "pulsewave-c794e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:219956836129:android:1c9da9050e4f9881d5f060",
+        "android_client_info": {
+          "package_name": "com.cla.pulsewave"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "219956836129-cgsdmjnvfkodsq1jp7bnnm2fbpidcocd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cla.pulsewave",
+            "certificate_hash": "2457bc341eeb0a127862f3478ad9f86f10288bb3"
+          }
+        },
+        {
+          "client_id": "219956836129-ms4va30n8m7iiqcsp528qlf9uq569f83.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6O4aa3i4d9I6awsx1KfiYf86jHxnQT2M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "219956836129-ms4va30n8m7iiqcsp528qlf9uq569f83.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
