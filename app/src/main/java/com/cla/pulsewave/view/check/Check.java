@@ -28,15 +28,23 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.cla.pulsewave.adapter.SparkChartAdapter;
+import com.cla.pulsewave.database.BleDatabase;
 import com.cla.pulsewave.databinding.FragmentCheckBinding;
+import com.cla.pulsewave.datatype.BluetoothData;
+import com.cla.pulsewave.dialog.BluetoothSettingDialog;
 import com.cla.pulsewave.service.BluetoothLeService;
 import com.cla.pulsewave.util.TextUtil;
 import com.robinhood.spark.SparkView;
 import com.robinhood.spark.animation.LineSparkAnimator;
 import com.robinhood.spark.animation.MorphSparkAnimator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Check extends Fragment {
     private FragmentCheckBinding binding;
+    private BleDatabase database;
+    private List<BluetoothData> list;
 
     public static Check newInstance() {
         Check check = new Check();
@@ -72,9 +80,19 @@ public class Check extends Fragment {
         binding.btnBLESCAN.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(requireContext(), ScanDevice.class);
-                intent.putExtra("key", "value");
-                startActivityForResult(intent, BLE_RETURN);
+                list = new ArrayList<>();
+                database = BleDatabase.getInstance(getContext());
+                list = database.bluetoothDao().getAll();
+                if(list.size()>0){
+                    Intent intent = new Intent(requireContext(), ScanDevice.class);
+                    intent.putExtra("key", "value");
+                    startActivityForResult(intent, BLE_RETURN);
+                }else{
+                    Toast.makeText(getActivity(),"UUID를 입력해주세요",Toast.LENGTH_SHORT).show();
+                    BluetoothSettingDialog dialog = new BluetoothSettingDialog(getContext());
+                    dialog.show();
+                }
+
             }
         });
 
@@ -119,7 +137,7 @@ public class Check extends Fragment {
         public void onServiceConnected(ComponentName componentName, IBinder service) {
             mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService(); //BluetoothLeService클래스 인스턴스화
             //BluetoothLeService 클래스에서 가져오기를 실패하였을 때
-            if (!mBluetoothLeService.initialize()) {
+            if (!mBluetoothLeService.initialize(list.get(0).getDevice(),list.get(0).getWrite(),list.get(0).getRead())) {
                 requireActivity().finish();
             }
             mBluetoothLeService.connect(mDeviceAddress); //첫연결할때 여기서 연결

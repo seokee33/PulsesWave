@@ -19,9 +19,13 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.cla.pulsewave.database.BleDatabase;
+import com.cla.pulsewave.datatype.BluetoothData;
 import com.cla.pulsewave.util.TextUtil;
 import com.cla.pulsewave.view.check.Check;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class BluetoothLeService extends Service {
@@ -56,17 +60,20 @@ public class BluetoothLeService extends Service {
     public final static String ACTION_DATA_AVAILABLE = "com.example.bluetooth.le.ACTION_DATA_AVAILABLE";
     public final static String EXTRA_DATA = "com.example.bluetooth.le.EXTRA_DATA";
 
-    //변경이 필요한 부분!!!
-    //UUID 지정(기기 UUID)
-    public final static UUID BLE_UUID = UUID.fromString("19b10000-e8f2-537e-4f6c-d104768a1214");
-    //UUID BLE_CLIENT_CHARACTERISTIC(통신 UUID)
-    public final static UUID BLE_CLIENT_CHARACTERISTIC_READ = UUID.fromString("19b10000-e8f2-537e-4f6c-d104768a1214");
 
-    public final static UUID BLE_CLIENT_CHARACTERISTIC_WRITE = UUID.fromString("19b10001-e8f2-537e-4f6c-d104768a1214");
+
+    //UUID 지정(기기 UUID)
+
+
+    public static UUID BLE_UUID = UUID.fromString("19b10000-e8f2-537e-4f6c-d104768a1214");
+    //UUID BLE_CLIENT_CHARACTERISTIC(통신 UUID)
+    public static UUID BLE_CLIENT_CHARACTERISTIC_READ = UUID.fromString("19b10000-e8f2-537e-4f6c-d104768a1214");
+
+    public static UUID BLE_CLIENT_CHARACTERISTIC_WRITE = UUID.fromString("19b10001-e8f2-537e-4f6c-d104768a1214");
 
 
     //BluetoothLeService 초기화
-    public boolean initialize() {
+    public boolean initialize(String device,String write, String read) {
         // BluetoothManager.
         if (mBluetoothManager == null) {
             mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
@@ -79,6 +86,10 @@ public class BluetoothLeService extends Service {
         if (mBluetoothAdapter == null) {
             return false;
         }
+        BLE_UUID = UUID.fromString(device);
+        BLE_CLIENT_CHARACTERISTIC_READ = UUID.fromString(write);
+        BLE_CLIENT_CHARACTERISTIC_WRITE = UUID.fromString(read);
+
         return true;
     }
 

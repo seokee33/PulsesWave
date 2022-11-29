@@ -17,13 +17,13 @@ public abstract class AppDatabase extends RoomDatabase {
     private static String DATABASE_NAME = "database";
     public synchronized static AppDatabase getInstance(Context context){
         if(database == null){
-            database = Room.databaseBuilder(context.getApplicationContext(),AppDatabase.class,DATABASE_NAME)
+            database = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class,DATABASE_NAME)
                     .allowMainThreadQueries()
                     .fallbackToDestructiveMigration()
                     .build();
         }
         return database;
     }
-    public abstract HistoryDao historyDao();
 
+    public abstract HistoryDao historyDao();
 }

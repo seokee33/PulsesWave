@@ -1,14 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="#14000000"
     tools:context=".view.user.User">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_UserInfo"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="user" />
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_setting"
+        android:layout_margin="5dp">
 
-</FrameLayout>
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/iv_profile"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:civ_border_color="#ffffff"
+            android:layout_margin="2dp"
+            android:src="@drawable/user"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_UserName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="....."
+            android:textSize="30sp"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_profile"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.25"
+            app:layout_constraintStart_toEndOf="@+id/iv_profile"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="님"
+            android:layout_marginStart="1dp"
+            android:textSize="30sp"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_UserName"
+            app:layout_constraintStart_toEndOf="@+id/tv_UserName"
+            app:layout_constraintTop_toTopOf="@+id/tv_UserName" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/tv_Setting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="설정"
+        android:padding="10dp"
+        android:textSize="30sp"
+        android:layout_margin="5dp"
+        android:background="@drawable/bg_setting"/>
+
+    <TextView
+        android:id="@+id/tv_Bluetooth"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:background="@drawable/bg_setting"
+        android:padding="10dp"
+        android:text="블루투스"
+        android:textSize="30sp" />
+
+    <TextView
+        android:id="@+id/tv_Logout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:background="@drawable/bg_setting"
+        android:padding="10dp"
+        android:text="로그아웃"
+        android:textSize="30sp" />
+
+
+</LinearLayout>
